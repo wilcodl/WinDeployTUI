@@ -88,6 +88,11 @@ function Install-WDTRequirements {
 		return
 	}
 
+	if ((Get-PSRepository PSGallery).InstallationPolicy -eq 'Untrusted'){
+		Write-Output "Trust PSGallery repo"
+		Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+	}
+
 	if ($PSVersionTable.PSEdition -eq 'Core'){
 		if (Get-Module -Name 'Microsoft.PowerShell.ConsoleGuiTools' -ListAvailable){
 			Write-Warning 'Microsoft.PowerShell.ConsoleGuiTools already installed'
