@@ -80,18 +80,6 @@ function Start-WDT {
 	}
 }
 
-function Install-WDTPowerShellCore {
-	# TODO requirement
-	Write-Output "Download PS Core"
-	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-	$WebClient = New-Object System.Net.WebClient
-	$WebClient.DownloadFile("https://github.com/PowerShell/PowerShell/releases/download/v7.1.1/PowerShell-7.1.1-win-x64.msi","$env:TEMP\powershellcore.msi")
-
-	Write-Output "Install PS Core"
-	Start-Process -FilePath 'msiexec.exe' -ArgumentList "/package $env:TEMP\powershellcore.msi /quiet" -NoNewWindow -Wait
-	Write-Output "Install ready"
-}
-
 function Install-WDTRequirements {
 	param ($PSVersion)
 
