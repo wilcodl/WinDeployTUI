@@ -84,7 +84,7 @@ function Install-WDTRequirements {
 	param ($PSVersion)
 
 	if ($PSVersion -le 5.0){
-		Write-Warning 'PowerShell version too old'
+		Write-Warning 'PowerShell version too old. Install WMF 5.1 or powershell-core with menuoption "a"'
 		return
 	}
 

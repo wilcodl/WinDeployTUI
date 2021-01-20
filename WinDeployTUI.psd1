@@ -30,7 +30,7 @@ Author = 'Wilco de Lange'
 Copyright = '(c) Wilco de Lange. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = ''
+Description = 'Deployment Text Interface for configuring Windows OS'
 
 # Minimum version of the PowerShell engine required by this module
 # PowerShellVersion = ''
