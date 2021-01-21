@@ -14,12 +14,13 @@ Start PowerShell as Administrator and run the following commands:
 
 ```powershell
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/wilcodl/WinDeployTUI/archive/master.zip" -OutFile '.\master.zip'
+$Path = (Get-Location).Path
+Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/wilcodl/WinDeployTUI/archive/master.zip" -OutFile "$Path\master.zip"
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-[System.IO.Compression.ZipFile]::ExtractToDirectory('.\master.zip', '.\')
+[System.IO.Compression.ZipFile]::ExtractToDirectory("$Path\master.zip", $Path)
 
-Import-Module '.\WinDeployTUI-master\WinDeployTUI'
+Import-Module "$Path\WinDeployTUI-master\WinDeployTUI"
 Start-WDT
 ```
 
