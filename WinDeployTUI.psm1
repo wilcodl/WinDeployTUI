@@ -25,17 +25,17 @@ function Start-WDT {
 		Write-Host "  System: $($Info.Model)"
 		Write-Host
 		Write-Host "   - GENERAL -" -ForegroundColor Yellow
-		Write-Host "  0. Install WDT requirements"
-		Write-Host "  1. Generic settings (taskbar)"
-		Write-Host "  2. Install TightVNC server"
-		Write-Host "  3. Install programs"
+		Write-Host "  1. Install WDT requirements"
+		Write-Host "  2. Generic settings (taskbar)"
+		Write-Host "  3. Install and reload in PowerShell Core"
+		Write-Host "  4. Install TightVNC server"
+		Write-Host "  5. Install programs with ChocolateyGet"
 		Write-Host "  9. Uninstall TightVNC server"
 		Write-Host
 		Write-Host "   - OPTIONAL -" -ForegroundColor Yellow
-		Write-Host "  a. Install Chocolatey"
+		Write-Host "  a. Install Chocolatey (choco.exe)"
 		Write-Host "  b. Remove Appx packages (current user)"
 		Write-Host
-		Write-Host "  r. Install and reload in PowerShell Core"
 		Write-Host "  q. Quit" -ForegroundColor Red
 		Write-Host
 		
@@ -43,16 +43,32 @@ function Start-WDT {
 		Write-Host
 		
 		switch ($Choice) {
-			0 { Install-WDTRequirements -PSVersion $Info.PSVersion }
-			1 { Set-WDTGeneralSettings -WinVersion $Info.WinVersion }
-			2 {
+			1 { Install-WDTRequirements -PSVersion $Info.PSVersion }
+			2 { Set-WDTGeneralSettings -WinVersion $Info.WinVersion }
+			3 {
+				if (Test-Path "$env:ProgramFiles\PowerShell\*\pwsh.exe"){
+					Write-Warning 'PowerShell Core already installed'
+				}
+				else {
+					Write-WDTStatus 'Install PowerShell Core'
+					Install-Package -Name 'powershell-core' -ProviderName ChocolateyGet -Force | Out-Null
+					Write-WDTStatus 'Done'
+				}
+
+				$CoreExe = Get-Item "$env:ProgramFiles\PowerShell\*\pwsh.exe"
+				if ($CoreExe){
+					. $CoreExe -Command "Import-Module $PSScriptRoot; Start-WDT"
+					return
+				}
+			}
+			4 {
 				if (Find-WDTChocoGet){
 					Write-WDTStatus 'Install TightVNC Server'
 					Install-Package -Name 'tightvnc' -ProviderName ChocolateyGet -AdditionalArguments '--installarguments "ADDLOCAL=Server VALUE_OF_ACCEPTHTTPCONNECTIONS=0 SET_USEVNCAUTHENTICATION=1 VALUE_OF_USEVNCAUTHENTICATION=0 SET_PASSWORD=1 VALUE_OF_PASSWORD="' -Force | Out-Null
 					Write-WDTStatus 'Done'
 				}
 			}
-			3 {
+			5 {
 				if (Find-WDTChocoGet){
 					$Packages = Read-WDTChocoPackages
 
@@ -75,23 +91,6 @@ function Start-WDT {
 
 			a { Install-WDTChoco }
 			b { Remove-WDTAppx }
-
-			r {
-				if (Test-Path "$env:ProgramFiles\PowerShell\*\pwsh.exe"){
-					Write-Warning 'PowerShell Core already installed'
-				}
-				else {
-					Write-WDTStatus 'Install PowerShell Core'
-					Install-Package -Name 'powershell-core' -ProviderName ChocolateyGet -Force | Out-Null
-					Write-WDTStatus 'Done'
-				}
-
-				$CoreExe = Get-Item "$env:ProgramFiles\PowerShell\*\pwsh.exe"
-				if ($CoreExe){
-					. $CoreExe -Command "Import-Module $PSScriptRoot; Start-WDT"
-					return
-				}
-			}
 			q {
 				return
 			}
