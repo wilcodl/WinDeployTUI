@@ -15,6 +15,7 @@ function Start-WDT {
 	$ModuleVersion = $MyInvocation.MyCommand.Module.Version
 
 	while ($true){
+		$WaitCleanConsole = $true
 		Clear-Host
 
 		Write-Host
@@ -54,7 +55,13 @@ function Start-WDT {
 			3 {
 				if (Find-WDTChocoGet){
 					$Packages = Read-WDTChocoPackages
-					Install-WDTChocoPackages -Packages $Packages
+
+					if ($Packages){
+						Install-WDTChocoPackages -Packages $Packages
+					}
+					else {
+						$WaitCleanConsole = $false
+					}
 				}
 			}
 			9 {
@@ -91,8 +98,10 @@ function Start-WDT {
 			default { Write-Warning "Type a digit or a letter" }
 		}
 		
-		Write-Host
-		Read-Host "Press enter to return to menu"
+		if ($WaitCleanConsole){
+			Write-Host
+			Read-Host "Press enter to return to menu"
+		}
 	}
 }
 
