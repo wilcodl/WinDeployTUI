@@ -12,12 +12,13 @@ function Start-WDT {
 	}
 
 	$Info = Get-WDTClientInfo
+	$ModuleVersion = $MyInvocation.MyCommand.Module.Version
 
 	while ($true){
 		Clear-Host
 
 		Write-Host
-		Write-Host "  || -- Windows Deployment TUI v0.1.0 -- ||" -ForegroundColor Magenta
+		Write-Host "  || -- Windows Deployment TUI v$ModuleVersion -- ||" -ForegroundColor Magenta
 		Write-Host
 		Write-Host "  Windows $($Info.WinVersion) - $($Info.Architecture) - $($Info.ProductType) - PowerShell $($Info.PSVersion)"
 		Write-Host "  System: $($Info.Model)"
