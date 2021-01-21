@@ -20,7 +20,7 @@ function Start-WDT {
 		Write-Host "  || -- Windows Deployment TUI v0.1.0 -- ||" -ForegroundColor Magenta
 		Write-Host
 		Write-Host "  Windows $($Info.WinVersion) - $($Info.Architecture) - $($Info.ProductType) - PowerShell $($Info.PSVersion)"
-		Write-Host "  Computermodel: $($Info.Model)"
+		Write-Host "  System: $($Info.Model)"
 		Write-Host
 		Write-Host "   - GENERAL -" -ForegroundColor Yellow
 		Write-Host "  0. Install WDT requirements"
@@ -37,7 +37,7 @@ function Start-WDT {
 		Write-Host "  q. Quit" -ForegroundColor Red
 		Write-Host
 		
-		$Choice = Read-Host "  Keuze"
+		$Choice = Read-Host "  Choice"
 		Write-Host
 		
 		switch ($Choice) {
@@ -45,8 +45,9 @@ function Start-WDT {
 			1 { Set-WDTGeneralSettings -WinVersion $Info.WinVersion }
 			2 {
 				if (Find-WDTChocoGet){
-					Write-Host "Install TightVNC Server" -ForegroundColor Green
+					Write-WDTStatus 'Install TightVNC Server'
 					Install-Package -Name 'tightvnc' -ProviderName ChocolateyGet -AdditionalArguments '--installarguments "ADDLOCAL=Server VALUE_OF_ACCEPTHTTPCONNECTIONS=0 SET_USEVNCAUTHENTICATION=1 VALUE_OF_USEVNCAUTHENTICATION=0 SET_PASSWORD=1 VALUE_OF_PASSWORD="' -Force | Out-Null
+					Write-WDTStatus 'Done'
 				}
 			}
 			3 {
@@ -57,8 +58,10 @@ function Start-WDT {
 			}
 			9 {
 				if (Find-WDTChocoGet){
+					Write-WDTStatus 'Uninstall TightVNC Server'
 					Get-PackageProvider -Name ChocolateyGet | Out-Null
 					Uninstall-Package -Name 'tightvnc' -ProviderName ChocolateyGet | Out-Null
+					Write-WDTStatus 'Done'
 				}
 			}
 
@@ -72,12 +75,18 @@ function Start-WDT {
 			q {
 				return
 			}
-			default { Write-Warning "Maak een keuze" }
+			default { Write-Warning "Type a digit or a letter" }
 		}
 		
 		Write-Host
 		Read-Host "Press enter to return to menu"
 	}
+}
+
+function Write-WDTStatus {
+	param ($Text)
+
+	Write-Host "$(Get-Date -Format 'HH:mm:ss') $Text" -ForegroundColor Green
 }
 
 function Install-WDTRequirements {
@@ -89,7 +98,7 @@ function Install-WDTRequirements {
 	}
 
 	if ((Get-PSRepository PSGallery).InstallationPolicy -eq 'Untrusted'){
-		Write-Output "Trust PSGallery repo"
+		Write-WDTStatus "Trust PSGallery repo"
 		Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 	}
 
@@ -98,7 +107,7 @@ function Install-WDTRequirements {
 			Write-Warning 'Microsoft.PowerShell.ConsoleGuiTools already installed'
 		}
 		else {
-			Write-Output "Install ConsoleGuiTools module"
+			Write-WDTStatus "Install ConsoleGuiTools module"
 			Install-Module -Name 'Microsoft.PowerShell.ConsoleGuiTools'
 		}
 	}
@@ -107,17 +116,19 @@ function Install-WDTRequirements {
 		Write-Warning 'PackageManagement => 1.4.7 already installed'
 	}
 	else {
-		Write-Output "Install PackageManagement module"
-		Install-Module PackageManagement
+		Write-WDTStatus "Install PackageManagement module"
+		Install-Module PackageManagement -Force
 	}
 
 	if (Get-PackageProvider -Name ChocolateyGet -ErrorAction SilentlyContinue){
 		Write-Warning 'ChocolateyGet already installed'
 	}
 	else {
-		Write-Host 'Register Chocolatey repository' -ForegroundColor Green
+		Write-WDTStatus 'Register Chocolatey repository' -ForegroundColor Green
 		Install-PackageProvider ChocolateyGet | Out-Null
 	}
+
+	Write-WDTStatus 'Done'
 }
 
 function Find-WDTChocoGet {
@@ -159,7 +170,7 @@ function Install-WDTChocoPackages {
 	param ($Packages)
 
 	foreach ($Package in $Packages){
-		Write-Host "Install $($Package.name)" -ForegroundColor Green
+		Write-WDTStatus "Install $($Package.name)"
 
 		if ($Package.arguments){
 			Install-Package -Name $Package.name -ProviderName ChocolateyGet -AdditionalArguments "--installarguments '$($Package.arguments)'" -Force | Out-Null
@@ -216,11 +227,6 @@ function Set-WDTGeneralSettings {
 		Write-Host "OS >= Win10: OneDrive uitschakelen" -ForegroundColor green
 		Get-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run' -Name 'OneDrive' -ErrorAction SilentlyContinue | Remove-ItemProperty -Name 'OneDrive'
 	}
-
-	Write-Host "Share toevoegen aan IE zone" -ForegroundColor green
-	$Folder = New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Ranges\Range1" -Force
-	$Folder | New-ItemProperty -Name "*" -Value 1 -PropertyType 'dword' | Out-Null
-	$Folder | New-ItemProperty -Name ":Range" -Value '10.0.0.45' -PropertyType 'string' | Out-Null
 	
 	Write-Host "Explorer opnieuw opstarten" -ForegroundColor green
 	Stop-Process -Name Explorer
@@ -232,8 +238,6 @@ function Remove-WDTAppx {
 	} else {
 		Import-Module Appx
 	}
-
-	# Get-AppxPackage -PackageTypeFilter Bundle | ft
 
 	$Apps = Import-Csv "$PSScriptRoot\data\appx.csv"
 
@@ -252,7 +256,7 @@ function Remove-WDTAppx {
 	}
 
 	foreach ($App in $Remove){
-		$App.Name + ' (' + $App.FriendlyName + ')'
+		Write-WDTStatus $App.Name + ' (' + $App.FriendlyName + ')'
 		Get-AppxPackage -Name $App.Name | Remove-AppxPackage -Confirm:$false
 	}
 }
