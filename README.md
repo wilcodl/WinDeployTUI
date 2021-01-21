@@ -18,9 +18,8 @@ Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/wilcodl/WinDeployTUI
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::ExtractToDirectory('.\master.zip', '.\')
-Move-Item -Path .\WinDeployTUI-master -Destination .\WinDeployTUI
 
-Import-Module .\WinDeployTUI
+Import-Module '.\WinDeployTUI-master\WinDeployTUI'
 Start-WDT
 ```
 
