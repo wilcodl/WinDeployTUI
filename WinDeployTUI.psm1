@@ -209,27 +209,27 @@ function Get-WDTClientInfo {
 function Set-WDTGeneralSettings {
 	param ($WinVersion)
 
-	if ($WinVersion -eq "6.1" -or $WinVersion -eq "6.2" -or $WinVersion -eq "6.3" -or $WinVersion -eq "10.0"){
-		Write-Host "OS >= Win7: Taakbalkknoppen verbreden" -ForegroundColor green
+	if ($WinVersion -ge 6.1){
+		Write-WDTStatus "OS >= Win7: Do not combine taskbar buttons"
 		New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarGlomLevel" -Value 1 -PropertyType 'dword' -Force | Out-Null
 	
-		Write-Host "OS >= Win7: Notificaties allemaal weergeven" -ForegroundColor green
+		Write-WDTStatus "OS >= Win7: Show all notification items"
 		New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Force | New-ItemProperty -Name "NoAutoTrayNotify" -Value 1 -PropertyType 'dword' | Out-Null
 	}
 
-	if ($WinVersion -eq "10.0"){
-		Write-Host "OS >= Win10: Search bar verbergen" -ForegroundColor green
+	if ($WinVersion -eq 10.0){
+		Write-WDTStatus "OS >= Win10: Hide search bar"
 		New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 0 -PropertyType 'dword' -Force | Out-Null
 
-		Write-Host "OS >= Win10: Meet Now verbergen" -ForegroundColor green
+		Write-WDTStatus "OS >= Win10: Hide Meet Now icon"
 		New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -Value 1 -PropertyType 'dword' -Force | Out-Null
 
-		Write-Host "OS >= Win10: OneDrive uitschakelen" -ForegroundColor green
+		Write-WDTStatus "OS >= Win10: Disable OneDrive"
 		Get-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run' -Name 'OneDrive' -ErrorAction SilentlyContinue | Remove-ItemProperty -Name 'OneDrive'
 	}
 	
-	Write-Host "Explorer opnieuw opstarten" -ForegroundColor green
-	Stop-Process -Name Explorer
+	Write-WDTStatus "Restart explorer.exe"
+	Stop-Process -Name explorer
 }
 
 function Remove-WDTAppx {
