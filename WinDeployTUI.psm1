@@ -33,7 +33,7 @@ function Start-WDT {
 		Write-Host "  a. Install Chocolatey"
 		Write-Host "  b. Remove Appx packages (current user)"
 		Write-Host
-		Write-Host "  r. Reload in PowerShell Core"
+		Write-Host "  r. Install and reload in PowerShell Core"
 		Write-Host "  q. Quit" -ForegroundColor Red
 		Write-Host
 		
@@ -69,8 +69,20 @@ function Start-WDT {
 			b { Remove-WDTAppx }
 
 			r {
-				pwsh.exe -Command "Import-Module $PSScriptRoot; Start-WDT"
-				return
+				if (Test-Path "$env:ProgramFiles\PowerShell\*\pwsh.exe"){
+					Write-Warning 'PowerShell Core already installed'
+				}
+				else {
+					Write-WDTStatus 'Install PowerShell Core'
+					Install-Package -Name 'powershell-core' -ProviderName ChocolateyGet -Force | Out-Null
+					Write-WDTStatus 'Done'
+				}
+
+				$CoreExe = Get-Item "$env:ProgramFiles\PowerShell\*\pwsh.exe"
+				if ($CoreExe){
+					. $CoreExe -Command "Import-Module $PSScriptRoot; Start-WDT"
+					return
+				}
 			}
 			q {
 				return
