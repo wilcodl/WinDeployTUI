@@ -6,7 +6,7 @@ function Start-WDT {
 
 	if ($PSVersionTable.PSEdition -ne 'Core'){
 		if (Get-Command -Name 'pwsh.exe' -ErrorAction SilentlyContinue){
-			pwsh.exe -Command "Import-Module $PSScriptRoot; Start-WDT"
+			pwsh.exe -Command "Import-Module '$PSScriptRoot'; Start-WDT"
 			break
 		}
 	}
@@ -57,7 +57,7 @@ function Start-WDT {
 
 				$CoreExe = Get-Item "$env:ProgramFiles\PowerShell\*\pwsh.exe"
 				if ($CoreExe){
-					. $CoreExe -Command "Import-Module $PSScriptRoot; Start-WDT"
+					. $CoreExe -Command "Import-Module '$PSScriptRoot'; Start-WDT"
 					return
 				}
 			}
