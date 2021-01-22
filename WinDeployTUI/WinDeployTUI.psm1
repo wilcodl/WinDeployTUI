@@ -90,7 +90,7 @@ function Start-WDT {
 			}
 
 			a { Install-WDTChoco }
-			b { Remove-WDTAppx }
+			b { $WaitCleanConsole = Remove-WDTAppx }
 			q {
 				return
 			}
@@ -277,8 +277,15 @@ function Remove-WDTAppx {
 		$Remove = $Apps | Out-GridView -PassThru -Title 'Select Appx packages'
 	}
 
-	foreach ($App in $Remove){
-		Write-WDTStatus $App.Name + ' (' + $App.FriendlyName + ')'
-		Get-AppxPackage -Name $App.Name | Remove-AppxPackage -Confirm:$false
+	$WaitCleanConsole = $true
+
+	if ($Remove){
+		foreach ($App in $Remove){
+			Write-WDTStatus $App.Name + ' (' + $App.FriendlyName + ')'
+			Get-AppxPackage -Name $App.Name | Remove-AppxPackage -Confirm:$false
+		}
+	}
+	else {
+		$WaitCleanConsole = $false
 	}
 }
