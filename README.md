@@ -59,3 +59,29 @@ Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope CurrentUser
 Import-Module WinDeployTUI
 Start-WDT
 ```
+
+# Install on Windows 8.1
+
+* Install Chocolatey:
+
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+```
+
+* Install WMF 5.1:
+
+```cmd
+choco install powershell -y
+```
+
+* Reboot your system
+* Set TLS version and register powershellgallery.com:
+
+```powershell
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+Register-PSRepository -Default
+```
+
+* Install WinDeployTUI, see above
