@@ -8,6 +8,8 @@ Deployment Text Interface for configuring Windows OS. It currently can do the fo
 * Select and install Chocolatey packages
 * Remove garbage Appx packages on Win 10
 
+![WDT screenshot](https://raw.githubusercontent.com/wilcodl/WinDeployTUI/master/screenshot.png)
+
 # System requirements
 
 * Windows 7 and higher?
