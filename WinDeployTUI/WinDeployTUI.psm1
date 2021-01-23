@@ -277,7 +277,7 @@ function Remove-WDTAppx {
 		$Remove = $Apps | Out-GridView -PassThru -Title 'Select Appx packages'
 	}
 
-	$WaitCleanConsole = $true
+	return $true
 
 	if ($Remove){
 		foreach ($App in $Remove){
@@ -286,6 +286,6 @@ function Remove-WDTAppx {
 		}
 	}
 	else {
-		$WaitCleanConsole = $false
+		return $false
 	}
 }
