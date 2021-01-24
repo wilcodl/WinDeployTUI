@@ -90,7 +90,7 @@ function Start-WDT {
 			}
 
 			a { Install-WDTChoco }
-			b { $WaitCleanConsole = Remove-WDTAppx }
+			b { $WaitCleanConsole = Remove-WDTAppx -WinVersion $Info.WinVersion }
 			q {
 				return
 			}
@@ -137,7 +137,7 @@ function Install-WDTRequirements {
 		Write-Warning 'PackageManagement => 1.4.7 already installed'
 	}
 	else {
-		Write-WDTStatus "Install PackageManagement module"
+		Write-WDTStatus "Upgrade PackageManagement module"
 		Install-Module PackageManagement -Force
 	}
 
@@ -255,13 +255,24 @@ function Set-WDTGeneralSettings {
 }
 
 function Remove-WDTAppx {
+	param ($WinVersion)
+
+	if ($WinVersion -lt 6.3){
+		Write-Warning 'Appx packages only applicable and tested on Windows 8.1 and higher'
+		return $true
+	}
+	elseif ($WinVersion -eq 6.3){
+		$Apps = Import-Csv "$PSScriptRoot\data\appx-win8.csv"
+	}
+	elseif ($WinVersion -eq 10.0){
+		$Apps = Import-Csv "$PSScriptRoot\data\appx.csv"
+	}
+
 	if ($PSVersionTable.PSEdition -eq 'Core'){
 		Import-Module Appx -UseWindowsPowerShell -WarningAction SilentlyContinue
 	} else {
 		Import-Module Appx
 	}
-
-	$Apps = Import-Csv "$PSScriptRoot\data\appx.csv"
 
 	foreach ($App in $Apps){
 		if (Get-AppxPackage -Name $App.Name){
@@ -277,13 +288,13 @@ function Remove-WDTAppx {
 		$Remove = $Apps | Out-GridView -PassThru -Title 'Select Appx packages'
 	}
 
-	return $true
-
 	if ($Remove){
 		foreach ($App in $Remove){
 			Write-WDTStatus $App.Name + ' (' + $App.FriendlyName + ')'
 			Get-AppxPackage -Name $App.Name | Remove-AppxPackage -Confirm:$false
 		}
+
+		return $true
 	}
 	else {
 		return $false
