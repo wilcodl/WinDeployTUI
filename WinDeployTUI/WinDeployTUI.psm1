@@ -36,6 +36,7 @@ function Start-WDT {
 		Write-Host "  a. Install Chocolatey (choco.exe)"
 		Write-Host "  b. Remove Appx packages (current user)"
 		Write-Host "  c. Disable Windows optional features"
+		Write-Host "  d. Restart computer"
 		Write-Host
 		Write-Host "  q. Quit" -ForegroundColor Red
 		Write-Host
@@ -93,6 +94,8 @@ function Start-WDT {
 			a { Install-WDTChoco }
 			b { $WaitCleanConsole = Remove-WDTAppx -WinVersion $Info.WinVersion }
 			c { $WaitCleanConsole = Disable-WDTOptionalFeature -WinVersion $Info.WinVersion }
+			d { Restart-Computer }
+
 			q {
 				return
 			}
@@ -326,11 +329,7 @@ function Disable-WDTOptionalFeature {
 
 	if ($Disable){
 		Write-WDTStatus 'Disable Windows optional feature(s)'
-		$Result = Disable-WindowsOptionalFeature -FeatureName $Disable.FeatureName -Online -NoRestart
-
-		if ($Result.RestartNeeded){
-			Write-Warning 'Restart is needed'
-		}
+		Disable-WindowsOptionalFeature -FeatureName $Disable.FeatureName -Online -NoRestart | Out-Null
 
 		return $true
 	}
