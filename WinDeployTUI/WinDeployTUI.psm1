@@ -327,7 +327,7 @@ function Disable-WDTOptionalFeature {
 	}
 
 	if ($PSVersionTable.PSEdition -eq 'Core'){
-		$Disable = $EnabledFeatures | Out-ConsoleGridView -Title 'Select Windows optional features' -OutputMode Multiple
+		$Disable = $EnabledFeatures | Select-Object FeatureName,State | Out-ConsoleGridView -Title 'Select Windows optional features' -OutputMode Multiple
 	} else {
 		$Disable = $EnabledFeatures | Out-GridView -PassThru -Title 'Select Windows optional features'
 	}

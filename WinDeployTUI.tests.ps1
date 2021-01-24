@@ -1,6 +1,7 @@
 Import-Module '.\WinDeployTUI\WinDeployTUI.psm1' -Force
-Import-Module '.\WinDeployTUI\WinDeployTUI.psd1' -Force
+# Import-Module '.\WinDeployTUI\WinDeployTUI.psd1' -Force
 
-Start-WDT
+# Start-WDT
 
-Set-WDTGeneralSettings -WinVersion 10.0
+Disable-WDTOptionalFeature 10.0
+# Set-WDTGeneralSettings -WinVersion 10.0
