@@ -1,10 +1,15 @@
 function Start-WDT {
-	if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")){
+	param (
+		[Parameter(Mandatory=$false)][switch]$SkipAdminCheck,
+		[Parameter(Mandatory=$false)][switch]$NoRestartInCore
+	)
+
+	if (!$SkipAdminCheck -and -not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")){
 		Write-Error 'Start in elevated PowerShell session'
 		break
 	}
 
-	if ($PSVersionTable.PSEdition -ne 'Core'){
+	if (!$NoRestartInCore -and $PSVersionTable.PSEdition -ne 'Core'){
 		if (Get-Command -Name 'pwsh.exe' -ErrorAction SilentlyContinue){
 			pwsh.exe -Command "Import-Module '$PSScriptRoot'; Start-WDT"
 			break
