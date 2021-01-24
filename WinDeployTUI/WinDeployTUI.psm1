@@ -35,6 +35,7 @@ function Start-WDT {
 		Write-Host "   - OPTIONAL -" -ForegroundColor Yellow
 		Write-Host "  a. Install Chocolatey (choco.exe)"
 		Write-Host "  b. Remove Appx packages (current user)"
+		Write-Host "  c. Disable Windows optional features"
 		Write-Host
 		Write-Host "  q. Quit" -ForegroundColor Red
 		Write-Host
@@ -91,6 +92,7 @@ function Start-WDT {
 
 			a { Install-WDTChoco }
 			b { $WaitCleanConsole = Remove-WDTAppx -WinVersion $Info.WinVersion }
+			c { $WaitCleanConsole = Disable-WDTOptionalFeature -WinVersion $Info.WinVersion }
 			q {
 				return
 			}
@@ -292,6 +294,42 @@ function Remove-WDTAppx {
 		foreach ($App in $Remove){
 			Write-WDTStatus $App.Name + ' (' + $App.FriendlyName + ')'
 			Get-AppxPackage -Name $App.Name | Remove-AppxPackage -Confirm:$false
+		}
+
+		return $true
+	}
+	else {
+		return $false
+	}
+}
+
+function Disable-WDTOptionalFeature {
+	param ($WinVersion)
+
+	if ($WinVersion -lt 6.3){
+		Write-Warning 'This feature is only applicable and tested on Windows 8.1 and higher'
+		return $true
+	}
+
+	$EnabledFeatures = Get-WindowsOptionalFeature -Online | Where-Object { $_.State -eq 'enabled' }
+
+	if (!$EnabledFeatures){
+		Write-Warning 'No optional Windows features are enabled'
+		return $true
+	}
+
+	if ($PSVersionTable.PSEdition -eq 'Core'){
+		$Disable = $EnabledFeatures | Out-ConsoleGridView -Title 'Select Windows optional features' -OutputMode Multiple
+	} else {
+		$Disable = $EnabledFeatures | Out-GridView -PassThru -Title 'Select Windows optional features'
+	}
+
+	if ($Disable){
+		Write-WDTStatus 'Disable Windows optional feature(s)'
+		$Result = Disable-WindowsOptionalFeature -FeatureName $Disable.FeatureName -Online -NoRestart
+
+		if ($Result.RestartNeeded){
+			Write-Warning 'Restart is needed'
 		}
 
 		return $true
