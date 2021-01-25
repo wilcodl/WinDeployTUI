@@ -11,7 +11,7 @@ function Start-WDT {
 
 	if (!$NoRestartInCore -and $PSVersionTable.PSEdition -ne 'Core'){
 		if (Get-Command -Name 'pwsh.exe' -ErrorAction SilentlyContinue){
-			pwsh.exe -Command "Import-Module '$PSScriptRoot'; Start-WDT"
+			pwsh.exe -Command "Import-Module '$PSScriptRoot\WinDeployTUI.psd1'; Start-WDT"
 			break
 		}
 	}
