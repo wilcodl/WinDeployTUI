@@ -64,7 +64,7 @@ function Start-WDT {
 
 				$CoreExe = Get-Item "$env:ProgramFiles\PowerShell\*\pwsh.exe"
 				if ($CoreExe){
-					. $CoreExe -Command "Import-Module '$PSScriptRoot'; Start-WDT"
+					. $CoreExe -Command "Import-Module '$PSScriptRoot\WinDeployTUI.psd1'; Start-WDT"
 					return
 				}
 			}
